@@ -1,8 +1,8 @@
 import { fastify } from "fastify";
 import routes from "./routes/v1/routes.js";
-import database from "./config/database.js";
-import env from "./config/env.js";
-import request from "./config/request.js";
+import AppPlugin from "./plugins/app.plugin.js";
+import ajvErrors from "ajv-errors";
+import appConfig from "./config/app.config.js";
 
 const app = fastify({
   logger: {
@@ -14,30 +14,33 @@ const app = fastify({
       },
     },
   },
-});
-
-///////////////////////
-// ENV configuration //
-///////////////////////
-
-app.register(env, {}, (err) => {
-  if (err) {
-    console.error("Error on Reading ENV", err);
+  ajv: {
+    customOptions: {
+      removeAdditional: true,
+      additionalProperties: false,
+      // Warning: Enabling this option may lead to this security issue https://www.cvedetails.com/cve/CVE-2020-8192/
+      allErrors: true
+    },
+    plugins: [
+      ajvErrors
+    ]
+    // plugins: [[require('ajv-formats'), { mode: 'fast' }]]
   }
 });
 
 
+///////////////////////
+// App configuration //
+///////////////////////
+
+app.register(appConfig, {}, (err) => console.error("Configuration Error", err));
+
+
 ////////////////////////////
-// Database configuration //
+// Plugins Registrations  //
 ////////////////////////////
 
-app.register(database, {}, (err) => console.error("Knex Error", err));
-
-////////////////////////////
-// Instance configuration //
-////////////////////////////
-
-app.register(request, {}, (err) => console.error("Request Error", err));
+app.register(AppPlugin, {}, (err) => console.error("Plugin registration", err));
 
 /////////////////////////
 // Route configuration //

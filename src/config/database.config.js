@@ -17,7 +17,6 @@ const database = (instance, options, next) => {
             },
           };
           instance.register(fastifyKnexjs, knexConfig)
-        
           next();
         
     } catch (error) {

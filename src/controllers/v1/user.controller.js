@@ -1,28 +1,43 @@
-import UserModel from "../../models/user.model.js";
+import UserService from "../../services/users.service.js";
+import Controller from "./controller.js";
+import UserValidators from "../../validators/users.validators.js";
 
-export const index = async ( req, reply ) => {
-    
-    let model = new UserModel(req.fastify.knex)
-    let data = await model.getAll();
-    return data;
-}
+class UserController extends Controller {
+    constructor(instance) {
+        super(instance);
+        this.service = new UserService(this.instance);
+    }
 
-export const store = async (req, reply) => {
+    /**
+     * Get all users in the current session and return them as a collection of users objects.
+     * @param {import("fastify").FastifyRequest} req
+     * @param {import("fastify").FastifyReply} reply
+     * @returns
+     */
+    async index(req, reply) {
+        let data = await this.service.getAll();
+        reply.success(data, "User Fetch Success");
+    }
 
-    let model = new UserModel(req.fastify.knex)
-    let data = await model.create({
-        name: "Shoaib Ahmed",
-        email: "ShoaibAhmed@gmail.com",
-        password: "123123123"
-    });
-    console.log("🚀 ~ store ~ data:", data)
+    /**
+     * Get all users in the current session and return them as a collection of users objects.
+     * @param {import("fastify").FastifyRequest} req
+     * @param {import("fastify").FastifyReply} reply
+     * @returns
+     */
+    async store(req, reply) {
+
+        console.log("🚀 ~ UserController ~ store ~ req.validationError:", req.validationError)
 
 
-    return data;
-}
-
-const UserController = {
-    index
+        const validate = req.compileValidationSchema(UserValidators);
+        if (!validate(req.body)) {
+            const validationErrors = validate.errors;
+            return reply.error(validationErrors, "Validation Error", 422);
+        }
+        let data = await this.service.create(req.body);
+        reply.success(data, "User Created successfully!");
+    }
 }
 
 export default UserController;

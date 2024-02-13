@@ -14,6 +14,10 @@ class BaseModel {
     return await this.knex(this.tableName).where({ id }).first();
   }
 
+  async getByEmail(email) {
+    return await this.knex(this.tableName).where({ email }).first();
+  }
+
   async create(data) {
     const insertData = this.pickFillable(data);
     return await this.knex(this.tableName).insert(insertData).returning('*');
