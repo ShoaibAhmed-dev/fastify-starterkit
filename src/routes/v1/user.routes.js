@@ -18,17 +18,29 @@ const UserRoutes = (instance , options, done) => {
                 description: 'User module',
                 tags: ['user'],
                 summary: 'get all users',
+                security: [
+                    {
+                        "Authorization":[],
+                    }
+                ],
             },
+            preHandler: instance.auth([instance.authenticate]),
             handler: controller.index.bind(controller)
         },
         {
             url: '/users',
             method:'POST',
             schema: {
+                summary: 'Create a new user',
                 description: 'User module',
                 tags: ['user'],
+                consumes: ['multipart/form-data'],
                 body: UserValidators,
-                summary: 'Create a new user',
+                security: [
+                    {
+                        "Authorization":[],
+                    }
+                ]
             },
             // attachValidation: true,
             preHandler: instance.auth([instance.authenticate]),

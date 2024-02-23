@@ -3,6 +3,18 @@ import routes from "./routes/v1/routes.js";
 import AppPlugin from "./plugins/app.plugin.js";
 import ajvErrors from "ajv-errors";
 import appConfig from "./config/app.config.js";
+import { ajvFilePlugin } from "@fastify/multipart";
+
+// function ajvFilePlugin(ajv) {
+//   return ajv.addKeyword({
+//     keyword: 'isFile',
+//     compile: (_schema, parent) => {
+//       parent.type = 'file';
+//       delete parent.isFile;
+//       return () => true;
+//     },
+//   });
+// }
 
 const app = fastify({
   logger: {
@@ -22,7 +34,8 @@ const app = fastify({
       allErrors: true
     },
     plugins: [
-      ajvErrors
+      ajvErrors,
+      ajvFilePlugin
     ]
     // plugins: [[require('ajv-formats'), { mode: 'fast' }]]
   }

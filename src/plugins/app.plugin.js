@@ -3,7 +3,9 @@ import fastifyBcrypt from "fastify-bcrypt";
 import fastifyPlugin from "fastify-plugin";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
-import fastifyJwt  from "@fastify/jwt";
+import fastifyJwt from "@fastify/jwt";
+import fastifyMultipart from "@fastify/multipart";
+import fastifyFormbody from "@fastify/formbody";
 /**
  * Register your custom plugin here.
  * @param {import("fastify").FastifyInstance} instance Fastify instance
@@ -20,12 +22,31 @@ const AppPlugin = (instance, opt, next) => {
     });
 
     // Swagger Plugin
-    instance.register(fastifySwagger);
+    instance.register(fastifySwagger, {
+        swagger: {
+            info: {
+                title: "Bidding API Documentation",
+                description:
+                    "Bidding API Documentation for Swagger Documentation",
+            },
+            securityDefinitions: {
+                Authorization: {
+                    type: "apiKey",
+                    scheme: "bearer",
+                    name: "Authorization",
+                    in: "header",
+                },
+            },
+        },
+    });
+
+    // SwaggerUI Plugin
     instance.register(fastifySwaggerUI, {
         routePrefix: "/documentation",
         uiConfig: {
-            docExpansion: "full",
-            deepLinking: false,
+            docExpansion: "list",
+            deepLinking: true,
+            persistAuthorization: true,
         },
         uiHooks: {
             onRequest: function (request, reply, next) {
@@ -35,18 +56,36 @@ const AppPlugin = (instance, opt, next) => {
                 next();
             },
         },
-        staticCSP: true,
         transformStaticCSP: (header) => header,
-        transformSpecification: (swaggerObject, request, reply) => {
-            return swaggerObject;
-        },
-        transformSpecificationClone: true,
+        staticCSP: false,
+        exposeRoute: true,
     });
 
     // JWT plugin
     instance.register(fastifyJwt, {
         secret: "myFirstFastifyProject",
     });
+
+    // Multipart plugin
+    instance.register(fastifyMultipart, {
+        attachFieldsToBody: true,
+        // attachFieldsToBody: 'keyValues',
+        // async onFile(part) {
+        //     const buffer = await part.toBuffer();
+        //     part.value = {
+        //         type: part.type,
+        //         fieldname: part.fieldname,
+        //         filename: part.filename,
+        //         encoding: part.encoding,
+        //         mimetype: part.mimetype,
+        //         buffer,
+        //         size: buffer.length,
+        //     };
+        // },
+    });
+
+    // Form Body plugin
+    instance.register(fastifyFormbody);
 
     next();
 };

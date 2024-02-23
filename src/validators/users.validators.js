@@ -3,15 +3,27 @@ const UserValidators = {
     required: ["name", "email", "password"],
     properties: {
         name: {
-            type: "string",
-
+            properties: {
+                value: {
+                    type: "string",
+                }
+            }
         },
         email: {
-            type: "string"
+            properties: {
+                value:{
+                    type: "string",
+                }
+            }
         },
         password: {
-            type: "string"
-        }
+            properties: {
+                value:{
+                    type: "string",
+                }
+            }
+        },
+        image: { isFile: true }
     },
     additionalProperties: false,
     

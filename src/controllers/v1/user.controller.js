@@ -27,15 +27,13 @@ class UserController extends Controller {
      */
     async store(req, reply) {
 
-        console.log("🚀 ~ UserController ~ store ~ req.validationError:", req.validationError)
+        // const validate = req.compileValidationSchema(UserValidators);
+        // if (!validate(req.body)) {
+        //     const validationErrors = validate.errors;
+        //     return reply.error(validationErrors, "Validation Error", 422);
+        // }
 
-
-        const validate = req.compileValidationSchema(UserValidators);
-        if (!validate(req.body)) {
-            const validationErrors = validate.errors;
-            return reply.error(validationErrors, "Validation Error", 422);
-        }
-        let data = await this.service.create(req.body);
+        let data = await this.service.create(req);
         reply.success(data, "User Created successfully!");
     }
 }
